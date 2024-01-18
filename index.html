@@ -253,7 +253,6 @@
           selectedCells = [];
           toggleHighlight(event.target);
         }
-
         function handleMouseMove(event) {
           event.preventDefault();
           if (isMouseDown) {
@@ -329,11 +328,51 @@
             return { rowIndex, colIndex, letter };
           });
         }
+        function handleTouchStart(event) {
+          event.preventDefault();
+          isMouseDown = true;
+          selectedCells = [];
+          toggleHighlight(event.target);
+        }
 
+        function handleTouchMove(event) {
+          event.preventDefault();
+          if (isMouseDown) {
+            const touch = event.touches[0];
+            const element = document.elementFromPoint(
+              touch.clientX,
+              touch.clientY
+            );
+            if (element && element.classList.contains('cell')) {
+              toggleHighlight(element);
+            }
+          }
+        }
+
+        function handleTouchEnd() {
+          isMouseDown = false;
+          // Check if the selected cells form a word
+          const selectedWord = getSelectedWord();
+          let lettersArray = selectedWord.map((obj) => obj.letter);
+          console.log(lettersArray);
+          let finalarray = '';
+          for (const char of lettersArray) {
+            finalarray += char;
+          }
+
+          if (word.indexOf(finalarray) > -1) {
+            applyHighlight();
+          } else {
+            removeHighlight();
+          }
+        }
         cells.forEach((cell) => {
           cell.addEventListener('mousedown', handleMouseDown);
+          cell.addEventListener('touchstart', handleTouchStart);
           cell.addEventListener('mousemove', handleMouseMove);
+          cell.addEventListener('touchmove', handleTouchMove);
           cell.addEventListener('mouseup', handleMouseUp);
+          cell.addEventListener('touchend', handleTouchEnd);
         });
         console.log(setGrid);
       }
